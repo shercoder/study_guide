@@ -1,0 +1,131 @@
+# Weekly Notes
+
+by Pardeep Singh
+
+## Parallel Hardware and Software - Week 3
+### Cache (shared memory systems)
+- each core typically has its own cache
+
+#### Cache Problems
+1. __Cache Coherence:__
+    -  It is problem when core 0 write through or write back to memory, but core 1 still has the wrong value in cache.
+    
+    - _Possible Solutions:_
+        1. __snooping cache coherence__ 
+        :   requires broadcast invalidating cache line to all cores
+        2. __directory-based cache coherence__
+        :   requires a directory to record cache lines in each core
+        
+2. __False Sharing:__
+    - suppose all of shared array y[] fits in one cache line
+    - every time either code executes the assignment statement, the cache line is invalidated
+    - even though the cores are not writing to the same locations - they are writing to the same cache line
+    - poor performance is the result
+
+### Terminology
+
+- __Latency:__
+:   The time between the source beginning to transmit data and the destination receiving the first byte.
+
+- __Bandwidth:__
+:   The rate at which the destinations receives data after it receives the first byte.
+
+- __ Message Transmission time__
+ : ```
+ message transmission time = latency + (n bytes of  message)/(bandwidth in bytes per second)
+ ```
+ 
+## Performance - Week 4
+Chris has good notes in readme.md on this topic
+
+## Errors & Floating Point - Week 5
+### Errors
+> Check readme.md
+
+### Floating Point Numbers
+- number of bits in the mantissa affects precision
+- number of bits in the exponent affects range
+- __positive overflow:__ 
+:   trying to represent a number larger than the maximum
+- __negative overflow:__
+:   trying to represent a number less than the negative of the maximum
+- __denormalized:__
+:   zero exponent, no leading one, smallest representable positive value is given by 
+    > 2 <sup>1-b-f</sup>, where b = bias and f = number of fractional bits
+    
+- _exponent of all zeros or all ones denote special values_
+    1. zero
+    2. denormalized
+    3. Infinity
+    4. NaN - Not a Number
+    
+## Distributed Memory Programming with MPI - Week 6,7,8
+### Point to Point communication
+> `Check readme.md`
+
+### Collective Communication
+> `Check readme.md for more information`
+
+#### Collective communication functions
+- __MPI_Reduce__ 
+:   stores result of a global reduction on a single process
+- __MPI_Allreduce__ 
+:   stores result of a global reduction on all processes
+- __MPI_Bcast__ 
+:   send data from one process to all others
+- __MPI_Scatter__ 
+:   scatters array values among all processes
+- __MPI_Gather__
+:   gathers array values from all processes
+- __MPI_Allgather__ 
+:   gathers array values from all processes to all processes
+- __MPI_Barrier__
+:   no process can return from a call to MPI_Barrier until all the processes in the communicator have started the call
+
+### Three approaches to distribute elements of data structure
+1. __Block partitioning:__
+:   assign blocks of consecutive components to each process
+2. __cyclic partitioning:__
+:   assign components in a round robin fashion
+3. __block-cyclic partitioning:__
+:   use a cyclic distribution of blocks of components
+
+_Example:_
+:   suppose you have an array x = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11)
+
+![partitioning](partitioning-approaches.png)
+
+## Linear Systems - Week 10
+> `Check readme.md`
+
+## Gaussian Elimination & Partial Pivoting - Week 11
+> ` Check readme.md`
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

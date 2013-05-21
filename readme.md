@@ -4,7 +4,7 @@ by Chris Knadler (<3)
 
 ## Move To Multicore
 
-The move to multicore started with the "power wall". While the number of transistors one can fit on a chip doubles ever two years (according to Moore's law), the power and clock speed of a single chip cannot scale in the same manner.
+The move to multicore started with the "power wall". While the number of transistors one can fit on a chip doubles every two years (according to Moore's law), the power and clock speed of a single chip cannot scale in the same manner.
 
 Clock speeds of modern CPUs have not increased notably in the last decade. The move has been towards multicore systems out of necessity. Smaller, more power efficient cores working together can parallelize tasks and attain higher performance within the clock speed and power constraints.
 
@@ -71,7 +71,7 @@ __Threads:__
 
 __SPMD:__
 
-Multiple autonomous processors simultaneously executing the same program on different sets of data. An example of this would be to run all of the test cases for our last assignment simultaneously.
+Multiple autonomous processors simultaneously executing the same program on different sets of data. An example of this would be to run all of the test cases for our last assignment simultaneously. SPMD can implement both data parallelism and task parallelism.
 
 __MPMD:__
 
@@ -99,7 +99,7 @@ Barrier: A mechanism to synchronize every thread currently alive in a process.
 
 __Load Balancing:__
 
-Distributing work over mutliple cores. This is not just about balancing the data distributed but about balancing the work of the problem equally.
+Distributing work over mutliple cores. This is not just about balancing the data distributed but about balancing the work of the problem equally. One of the main goals of load balancing is to minimize communication between processes/threads.
 
 __Foster's Methodology:__
 
@@ -376,10 +376,17 @@ Examples:
 * Operations involving Matrix `?(op)` Matrix
   * Matrix multiplication
   * Known as level three operations
+  
+Other libraries built on __BLAS:__
+
+1. LAPACK - Linear Algebra Package
+2. GNU Scientific Library
+  
+
 
 ## Complexity of vector and matrix operations
 
-__SAXPY:__
+__SAXPY:__ _(Single-precision real Alpha X Plus Y)_
 
 Takes two vectors `A` and `B` and a scalar `a`. Sets each element of the vector `B`
 to: `B[i] = A[i] * a`.
@@ -665,10 +672,14 @@ integral. Increasing the `n` (or number of rectangles) increases the accuracy
 of the solution.
 
 #### Gaussian Elimination
+__Issues with Gaussian Elimination:__
 
-__Partial Pivoting:__
+1. divide by zero
+2. round off erros
 
-Partial pivoting is when you the largest absolute value, at or below the
+__Partial Pivoting:__ _(Solution to above mentioned issues)
+
+Partial pivoting is when you take the largest absolute value, at or below the
 diagonal (from top left to bottom right) to the position of the diagonal in
 that column. I may have worded that poorly...
 
@@ -693,5 +704,135 @@ for LU Decomp...she will probably ask why you should use it.
 
 A decent answer is, for the equation `Ax = b`, if you are attempting to find
 `x` for multiple `b`s with the same `A`, LU Decomp is much faster.
+
+__Usage:__
+: LU decomposition can be used to efficiently find the inverse of a square matrix.
+
+
+__Two ways to solve (A = LU)__
+- use an augmented matrix and update the right hand side at the same time and then solve using back substitution (Gaussian elimination)
+- or we can use LU as follows
+> rewrite `b = Ax` as `b = LUx = Ly` where `y = Ux`
+
+> then solve `Ly = b` (for __y__ using forward substitution)
+
+> then solve `Ux = y` (for __x__ using back substitution)
+
+- this approach is useful and efficient when you need to solve a system for multiple right hand sides 
+
+__Jacobi Iteration:__
+
+__Gauss-Seidel Iteration__
+
+> Read [Here](http://www.ecst.csuchico.edu/~judyc/1213S-csci551/notes/15-gauss-seidal.html)
+
+## Parallel Programming using OpenMP
+- MP stands for __multiprocessing__
+- SMP stands for __symmetric multiprocessing__
+:   In SMP, all cores are treated equally and have equal access to the shared memory
+
+### programming model (fork-join)
+- OpenMP API uses fork-join model of parallel execution
+
+![Fork Join Model](fork_join.png)
+
+### Three components of OpenMP
+1. compiler directives
+2. runtime library routines
+3. environment variables
+
+#### Various uses of compiler directives
+1. spawning a parallel region
+2. dividing blocks of code among threads
+3. distributing loop iterations between threads
+4. serializing sections of code
+5. synchronization of work among threads
+
+### Work sharing constructs
+- work sharing constructs specify how the work is divided up among threads
+- __for directive:__
+:   divides the iterations of a for loop among a team of threads
+- OpenMP will only parallelize for loops for which the number of iterations can be determined
+- __scheduling loops:__
+    1. partitioning of loop iterations can be block or cyclic
+    2. if there is no schedule clause, the partitioning is block by default
+    3. if there is a schedule clause, the partitioning is cyclic 
+
+- __Types of Scheduling:__
+    1. __static scheduling__
+    :   if the chunksize is not specified, it defaults to number of iterations/number of threads
+    2. __dynamic scheduling__
+        - assignments are dynamic, done while the loop is executing
+        - when a thread finishes a chunk, it asks for another chunk
+        - if the chunksize is not specified, it defaults to 1
+    3. __guided__
+        - like dynamic, the chunks are dynamically allocated to threads
+        - in addition, the size of the chunk is gradually decreased
+        - each allocation is approximately number of remaining iterations/number of threads
+    4. __auto__
+    :   compiler or runtime system determine the schedule
+    
+    5. __runtime__
+    :   an environment variable, OMP_SCHEDULE controls the schedule
+    : _example:_
+    
+```
+        export OMP_SCHEDULE="static,5000"
+        omp_sin_sum 2 1000
+```
+    
+- scheduling introduces overhead
+    - block partitioning has the least overhead
+    - static cyclic with large chunks
+    - static cyclic with small chunks
+    - dynamic
+    - guided has the most overhead
+    
+### Synchronization
+#### deciding what synchronization to use
+- __atomic__ has potentially the highest performance
+- however, an implementation can choose to make all atomic directives one critical section
+- unnamed critical sections are treated as one, so use with care
+- named critical sections must be named at compile time, so are useful for blocks of code
+- atomic and critical sections are typically used to synchronize access to blocks of code
+- locks are typically used to synchronizing access to a data structure 
+    
+### Minimizing overhead of fork-join
+- split the parallel and for directives
+- the parallel directive forks threads
+- the for directive allocates iterations to the team of existing thread
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+ 
 
 
